@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NextStep Bay — Job Transition Finder</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --accent: #22d3ee;
+    --accent2: #a78bfa;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(160deg, #0f172a, #1e1b4b);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 32px; }
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 6px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  p.sub { color: var(--muted); margin: 0; }
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  }
+  label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; margin-top: 14px; }
+  select, input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: var(--text);
+    font-size: 1rem;
+  }
+  button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    color: #0f172a;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+  }
+  button:hover { transform: translateY(-1px); }
+  #results { display: none; }
+  .path-card {
+    background: #0f172a;
+    border-left: 4px solid var(--accent);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .path-card h3 { margin: 0 0 4px 0; color: var(--accent); }
+  .path-card .meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; }
+  .path-card p { margin: 6px 0; font-size: 0.92rem; line-height: 1.4; }
+  .resources { margin-top: 8px; }
+  .resources a {
+    display: inline-block;
+    font-size: 0.8rem;
+    color: var(--accent2);
+    text-decoration: none;
+    margin-right: 12px;
+    border-bottom: 1px dotted var(--accent2);
+  }
+  .badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: rgba(34,211,238,0.15);
+    color: var(--accent);
+    margin-right: 6px;
+  }
+  footer { text-align: center; color: var(--muted); font-size: 0.75rem; margin-top: 30px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>NextStep Bay</h1>
+    <p class="sub">Find your next role, reskilling path, and local support — built for Bay Area workers facing job displacement.</p>
+    <p style="font-size:0.8rem;color:#facc15;margin-top:10px;">⚡ AI-driven automation is projected to disrupt millions of jobs this decade — most transition tools are generic. NextStep Bay is hyper-local: real Bay Area programs, real county resources.</p>
+  </header>
+
+  <div class="card">
+    <label for="job">Your current or most recent job</label>
+    <select id="job">
+      <option value="">Select the closest match...</option>
+      <option value="retail">Retail / Cashier</option>
+      <option value="warehouse">Warehouse / Logistics</option>
+      <option value="customer_service">Customer Service / Call Center</option>
+      <option value="driver">Rideshare / Delivery Driver</option>
+      <option value="admin">Administrative / Office Support</option>
+      <option value="foodservice">Food Service / Restaurant</option>
+      <option value="manufacturing">Manufacturing / Factory</option>
+      <option value="hospitality">Hospitality / Hotel</option>
+    </select>
+
+    <label for="county">Bay Area county</label>
+    <select id="county">
+      <option value="">Select your county...</option>
+      <option value="santa_clara">Santa Clara</option>
+      <option value="alameda">Alameda</option>
+      <option value="sf">San Francisco</option>
+      <option value="san_mateo">San Mateo</option>
+      <option value="contra_costa">Contra Costa</option>
+    </select>
+
+    <button onclick="findPaths()">Find My Transition Paths</button>
+  </div>
+
+  <div id="results"></div>
+
+  <footer>Built for a hackathon focused on job displacement &amp; economic transition in the Bay Area. Resource links point to real public/nonprofit programs — please verify current details before relying on them.</footer>
+</div>
+
+<script>
+const paths = {
+  retail: [
+    { title: "Healthcare Support Technician", growth: "High growth", time: "3-6 months",
+      desc: "Retail's customer-facing and multitasking skills transfer directly to patient-facing healthcare roles like medical assistant or pharmacy tech.",
+      program: "City College of San Francisco – Health Care Technology", link: "https://www.ccsf.edu/" },
+    { title: "IT Support Specialist", growth: "High growth", time: "3-4 months",
+      desc: "Help desk and POS troubleshooting experience is a strong foundation for entry-level IT support roles.",
+      program: "NOVA Workforce Board – IT Training Vouchers", link: "https://www.novaworks.org/" }
+  ],
+  warehouse: [
+    { title: "Logistics Coordinator", growth: "Steady growth", time: "2-4 months",
+      desc: "Move from hands-on warehouse work into planning and coordinating shipments, inventory, and routes.",
+      program: "Rising Sun Center for Opportunity – Climate Careers", link: "https://risingsunopp.org/" },
+    { title: "Solar Panel Installer", growth: "High growth (green jobs)", time: "6-10 weeks",
+      desc: "Physical, hands-on skills carry over well; strong demand across the Bay Area as solar adoption grows.",
+      program: "GRID Alternatives – Solar Installation Training", link: "https://gridalternatives.org/" }
+  ],
+  customer_service: [
+    { title: "UX/Customer Success Associate", growth: "High growth (tech)", time: "3-5 months",
+      desc: "Call center experience translates well into customer success roles at tech companies, often with higher pay.",
+      program: "JVS Bay Area – Tech Career Training", link: "https://www.jvs.org/" },
+    { title: "Medical Billing & Coding", growth: "Steady growth", time: "4-6 months",
+      desc: "Detail-oriented phone/data work maps closely onto billing and coding roles in healthcare admin.",
+      program: "Skyline College – Health Careers", link: "https://skylinecollege.edu/" }
+  ],
+  driver: [
+    { title: "EV/Fleet Technician", growth: "High growth", time: "4-8 months",
+      desc: "Familiarity with vehicles and routes is a stepping stone into the growing EV maintenance field.",
+      program: "Laney College – Automotive/EV Technology", link: "https://laney.edu/" },
+    { title: "Logistics Dispatcher", growth: "Steady growth", time: "1-3 months",
+      desc: "On-the-road knowledge of Bay Area routes is valuable for dispatch and fleet coordination roles.",
+      program: "Alameda County Workforce Development", link: "https://www.acgov.org/workforce/" }
+  ],
+  admin: [
+    { title: "Project Coordinator", growth: "Steady growth", time: "2-4 months",
+      desc: "Scheduling, documentation, and communication skills translate well into project support roles across industries.",
+      program: "SF Office of Economic and Workforce Development", link: "https://oewd.org/" },
+    { title: "HR Assistant / People Ops", growth: "Steady growth", time: "2-3 months",
+      desc: "Administrative organization skills are a natural fit for HR and people operations support roles.",
+      program: "Rework – SF Career Programs", link: "https://oewd.org/rework-training-partners" }
+  ],
+  foodservice: [
+    { title: "Culinary/Food Production Supervisor", growth: "Steady growth", time: "2-4 months",
+      desc: "Build on kitchen experience with certifications for supervisory or institutional food service roles (schools, hospitals).",
+      program: "La Cocina – Food Business Training", link: "https://lacocinasf.org/" },
+    { title: "Healthcare Support Technician", growth: "High growth", time: "3-6 months",
+      desc: "Fast-paced, people-facing food service experience transfers into patient care support roles.",
+      program: "City College of San Francisco – Health Care Technology", link: "https://www.ccsf.edu/" }
+  ],
+  manufacturing: [
+    { title: "EV/Advanced Manufacturing Technician", growth: "High growth", time: "3-6 months",
+      desc: "Hands-on production experience maps directly onto growing EV and clean-tech manufacturing roles in the Bay Area.",
+      program: "Chabot-Las Positas – Advanced Manufacturing", link: "https://www.clpccd.org/" },
+    { title: "Quality Assurance Technician", growth: "Steady growth", time: "2-3 months",
+      desc: "Attention to detail on the line transfers well into QA/QC roles across manufacturing and biotech.",
+      program: "Ohlone College – Manufacturing Technology", link: "https://www.ohlone.edu/" }
+  ],
+  hospitality: [
+    { title: "Property/Facilities Coordinator", growth: "Steady growth", time: "2-3 months",
+      desc: "Hotel operations experience transfers into commercial or residential facilities coordination.",
+      program: "UNITE HERE Local 2 – Career Advancement", link: "https://unitehere2.org/" },
+    { title: "Event & Hospitality Tech Roles", growth: "Steady growth", time: "1-3 months",
+      desc: "Guest service skills are in demand for tech company hospitality and workplace experience teams.",
+      program: "JVS Bay Area – Tech Career Training", link: "https://www.jvs.org/" }
+  ]
+};
+
+const localSupport = {
+  santa_clara: { name: "Santa Clara County", link: "https://www.sccgov.org/sites/osh/", desc: "Office of Supportive Housing & workforce resources" },
+  alameda: { name: "Alameda County", link: "https://www.acgov.org/workforce/", desc: "Workforce Development Board" },
+  sf: { name: "San Francisco", link: "https://oewd.org/", desc: "Office of Economic & Workforce Development" },
+  san_mateo: { name: "San Mateo County", link: "https://www.smcgov.org/hsa", desc: "Human Services Agency" },
+  contra_costa: { name: "Contra Costa County", link: "https://www.contracosta.ca.gov/2712/Employment-Human-Services", desc: "Employment & Human Services" }
+};
+
+function findPaths() {
+  const job = document.getElementById('job').value;
+  const county = document.getElementById('county').value;
+  const resultsDiv = document.getElementById('results');
+
+  if (!job || !county) {
+    alert('Please select both your job type and county.');
+    return;
+  }
+
+  const options = paths[job];
+  const support = localSupport[county];
+
+  let html = '<div class="card"><h2 style="margin-top:0;color:var(--accent2)">Your Transition Paths</h2>';
+
+  options.forEach(p => {
+    html += `
+      <div class="path-card">
+        <h3>${p.title}</h3>
+        <div class="meta"><span class="badge">${p.growth}</span><span class="badge">${p.time} to entry</span></div>
+        <p>${p.desc}</p>
+        <div class="resources">
+          <a href="${p.link}" target="_blank" rel="noopener">${p.program} →</a>
+        </div>
+      </div>`;
+  });
+
+  html += `
+    <div class="path-card" style="border-left-color: var(--accent2)">
+      <h3>Local Support: ${support.name}</h3>
+      <p>${support.desc}</p>
+      <div class="resources">
+        <a href="${support.link}" target="_blank" rel="noopener">Visit workforce resources →</a>
+      </div>
+    </div>
+  </div>`;
+
+  resultsDiv.innerHTML = html;
+  resultsDiv.style.display = 'block';
+  resultsDiv.scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
