@@ -36,7 +36,3 @@ Single-page static web app — HTML, CSS, and vanilla JavaScript, no frameworks 
 - Expand job categories and county coverage across the Bay Area
 - Add resume/skills upload for more personalized matching
 - Partner directly with workforce boards for warm handoff / application tracking
-
-## Team
-
-Built at [hackathon name] in ~1 hour.
